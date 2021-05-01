@@ -37,7 +37,7 @@ def jpeg_parse_dimensions(f):
 	return b[2]*256+b[3], b[0]*256+b[1]
 
 def jpeg_get_size(img_path):
-	with io.open(img_path, "rb") as f
+	with io.open(img_path, "rb") as f:
 		jpeg_parse_file_signature(f)
 		m = jpeg_parse_marker(f)
 		while not(m>=0xc0 and m<=0xc3):
@@ -47,4 +47,4 @@ def jpeg_get_size(img_path):
 			w,h = jpeg_parse_dimensions(f)
 	return w,h
 
-# TODO tests comparing to: $ identify -format "%w %h\n" a.jpg
+# TODO tests comparing to: $ identify -format "%w %h" a.jpg
