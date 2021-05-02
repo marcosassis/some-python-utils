@@ -3,7 +3,7 @@ import io
 
 def jpeg_parse_file_signature(f):
 	b = f.read(10)
-	if not b or len(b)<10 or b[0:4]!=b'\xff\xd8\xff\xe0' or b[-4:]!=b'JFIF':
+	if not b or len(b)<10 or b[0:3]!=b'\xff\xd8\xff': # b[0:4]!=b'\xff\xd8\xff\xe0' or b[-4:]!=b'JFIF':
 		raise Exception("not a JPEG file")
 	
 	block_size = b[4]*256+b[5]
