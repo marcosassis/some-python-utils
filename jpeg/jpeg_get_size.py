@@ -61,8 +61,13 @@ def jpeg_parse_resolution(f):
 	b = f.read(5)
 	return b[0], b[1]*256+b[2], b[3]*256+b[4] # unit, x res, y res
 
+def jpeg_res_in_ppi(unit, xres, yres):
+	if unit==0: raise Exception("density units = no units. can't convert to physical size") 
+	if unit==1: return xres, yres
+	return xres/2.54, yres/2.54
+
 def jpeg_get_resolution(img_path):
 	with io.open(img_path, "rb") as f:
-		return jpeg_parse_resolution(f)
+		return jpeg_res_in_ppi(*jpeg_parse_resolution(f))
 
 # TODO tests comparing to: $ identify -format "%w %h" a.jpg

@@ -19,7 +19,7 @@ from . import jpegtran_run as jtran
 from . import jpeg_get_size as jsize
 
 def jpeg_aprox_uncrop(in_path, out_path, w, h, x, y, w_mod='', h_mod='', opt_list=jtran._defaul_options):
-	in_w, in_h = jsize.jpeg_get_size(in_path)
+	in_w, in_h = jsize.jpeg_get_dimensions(in_path)
 	
 	if h <= in_h or h_mod=='':
 		# ok, jpegtran 9d can handle this...

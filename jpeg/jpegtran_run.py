@@ -10,6 +10,7 @@ def jpegtran_run(in_path, out_path, par_list, opt_list=_defaul_options):
 	cmd_list.extend(par_list)
 	cmd_list.append(in_path)
 	result = subprocess.run(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print(cmd_list)
 	print(result.stdout.decode('utf-8'))
 	print(result.stderr.decode('utf-8'))
 
