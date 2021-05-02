@@ -35,7 +35,7 @@ def jpeg_crop_to_frame(item):
 	
 	folder, name = os.path.split(img_path)
 	out_path = folder + "/crop-to-frame/"+  name
-	juncr.jpeg_aprox_uncrop(img_path, out_path, frame_w_px, frame_h_px, -offX_px, -offY_px)
+	juncr.jpeg_aprox_uncrop(img_path, out_path, frame_w_px, frame_h_px, -offX_px, -offY_px, 'f', 'f')
 
 docUnit = scribus.getUnit()
 scribus.setUnit(UNIT_PT)
