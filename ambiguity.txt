@@ -1,0 +1,243 @@
+TL;DR:
+
+    jpegtran extend semantics is bogus
+    solution: use negative offsets differently
+    the offset of the crop region must be always referenced from the input
+
+
+JPEGTRAN CROP (normal)
+
+    Win, Hin = (80,80)
+    W, H, X, Y = (40,40, 0, 0)
+
+        input:
+
+            Win
+        +-------------+
+        | @         % |
+        |             |
+        |             | Hin
+        |             |
+        | #         $ |
+        +-------------+
+
+        output:
+
+            W
+        +------+
+        | @    |
+        |      |  H
+        +------+
+
+
+    Win, Hin = (80,80)
+    W, H, X, Y = (40,40, 40, 40)
+
+        input:
+
+            Win
+        0-------------+
+        | @         % |
+        |             |
+        |             | Hin
+        |             |
+        | #         $ |
+        +-------------+
+
+        output:
+        (X,Y) is the offset of the crop region from the input
+
+            W
+        XY-----+
+        |      |
+        |    $ |  H
+        +------+
+
+
+JPEGTRAN EXTEND
+
+    Win, Hin = (40,40)
+    W, H, X, Y = (80,80, 20, 20)
+
+        input:
+
+           Win
+        XY-----+
+        | @    |
+        |    $ |  Hin
+        +------+
+
+        output:
+        (X,Y) is the offset of the input from the crop region
+
+            W
+        0-------------+
+        |     Y       |
+        |   +-----+   |
+        | X |@    |   | H
+        |   |    $|   |
+        |   +-----+   |
+        |             |
+        +-------------+
+
+
+JPEGTRAN AMBIGUOUS (error)
+
+    Win, Hin = (80,80)
+    W, H, X, Y = (80,80, 40, 40)
+
+        input:
+
+            W = Win
+        +-------------+
+        | @         % |
+        |             |
+        |             | H = Hin
+        |             |
+        | #         $ |
+        +-------------+
+
+        output A:
+        (X,Y) is the offset of the input from the crop region
+
+               W
+        0-------------+
+        |             | Y
+        |             |
+        |      XY-----+ 
+        |      | @    | H-Y
+        |      |      | 
+        +------+------+
+            X     W-x
+
+        output B:
+        (X,Y) is the offset of the crop region from the input
+
+               W
+        XY-----+------+
+        |      |      |
+        |    $ |      |
+        +------+      | H
+        |             |
+        |             | 
+        +-------------+
+
+
+SOLUTION
+
+    (X,Y) is always the offset of the crop region from the input
+    use negative numbers to extend left/up
+    
+    in a designing program it would be the same as
+        crop region = image frame
+        input image = image inside frame
+        frame origin = top left on frame
+        image origin = top left on image
+        image origin = (0,0)
+        crop offset = (X,Y) = frame origin = output origin
+        either way it's represented on the application:
+            crop offset = offset of the frame from the image
+            crop offset = netative of (offset of the image from it's frame)
+
+
+NEW EXTEND
+
+    Win, Hin = (40,40)
+    W, H, X, Y = (80,80, +20, +20)
+
+        input:
+
+           Win
+        0------+
+        | @    |
+        |    $ |  Hin
+        +------+
+
+        output:
+
+            W
+        XY------------+
+        | $| Win-X    |
+        +--+          |
+        | Hin-Y       | H
+        |             |
+        |             |
+        |             |
+        +-------------+
+
+    Win, Hin = (40,40)
+    W, H, X, Y = (80,80, -20, -20)
+
+        input:
+
+           Win
+        0------+
+        | @    |
+        |    $ |  Hin
+        +------+
+
+        output:
+        (both X and Y are negative)
+
+            W
+        XY------------+
+        |     Y       |
+        |   0-----+   |
+        | X |@    |   | H
+        |   |    $|   |
+        |   +-----+   |
+        |             |
+        +-------------+
+
+
+    Win, Hin = (80,80)
+    W, H, X, Y = (80,80, +40, +40)
+
+        input:
+
+            W = Win
+        0-------------+
+        | @         % |
+        |             |
+        |             | H = Hin
+        |             |
+        | #         $ |
+        +-------------+
+
+        output B is the correct:
+
+               W
+        XY-----+------+
+        |      |      |
+        |    $ |      |
+        +------+      | H
+        |             |
+        |             | 
+        +-------------+
+
+
+    Win, Hin = (80,80)
+    W, H, X, Y = (80,80, -40, -40)
+
+        input:
+
+            W = Win
+        0-------------+
+        | @         % |
+        |             |
+        |             | H = Hin
+        |             |
+        | #         $ |
+        +-------------+
+    
+        same as output A, but with negative offsets inputed:
+
+            W = Win
+        XY------------+
+        |             | Y
+        |             |
+        |      0------+ 
+        |      | @    | H+Y
+        |      |      | 
+        +------+------+
+            X     W+x
